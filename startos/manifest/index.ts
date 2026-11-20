@@ -1,26 +1,41 @@
 import { setupManifest } from '@start9labs/start-sdk'
 import { long, short } from './i18n'
 
+const variant = process.env.VARIANT || 'generic'
+
+const unmanicVersion = '0.4.1'
+
 export const manifest = setupManifest({
   id: 'unmanic',
   title: 'Unmanic',
-  license: 'MIT', // TODO: match the upstream project's license
-  packageRepo: 'https://github.com/REPLACE_ME/unmanic-startos', // TODO: set the packaging repo URL
-  upstreamRepo: 'https://github.com/REPLACE_ME/REPLACE_ME', // TODO: set the upstream project URL
-  marketingUrl: 'https://REPLACE_ME', // TODO: set or remove
-  donationUrl: 'https://REPLACE_ME', // TODO: set or remove
+  license: 'GPL-3.0',
+  packageRepo: 'https://github.com/Start9Labs/unmanic-startos',
+  upstreamRepo: 'https://github.com/Unmanic/unmanic',
+  marketingUrl: 'https://docs.unmanic.app',
+  donationUrl: null,
   description: { short, long },
-  // 'example-volume' is an arbitrary id — name volumes whatever suits the
-  // service. It must match the volumeId mounted in startos/main.ts and the
-  // volume backed up in startos/backups.ts.
-  volumes: ['example-volume'],
+  volumes: ['startos', 'main', 'cache'],
   images: {
-    // 'example-image' is an arbitrary id — it must match the imageId used in
-    // startos/main.ts. TODO: replace the hello-world image with your service's
-    // image — set dockerTag (or add a Dockerfile) and rename this key.
-    'example-image': {
-      source: { dockerTag: 'ghcr.io/start9labs/hello-world:2.0.0' },
+    unmanic: {
+      source: { dockerTag: `josh5/unmanic:${unmanicVersion}` },
       arch: ['x86_64', 'aarch64'],
+      nvidiaContainer: variant === 'nvidia',
     },
+  },
+  // Uniform across variants: the registry rejects a variant whose metadata differs.
+  hardwareAcceleration: true,
+  hardwareRequirements: {
+    device:
+      variant === 'nvidia'
+        ? [
+            {
+              class: 'display',
+              product: null,
+              vendor: null,
+              driver: 'nvidia',
+              description: 'An NVIDIA GPU',
+            },
+          ]
+        : [],
   },
 })
