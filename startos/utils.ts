@@ -100,11 +100,12 @@ export async function connectPlugin(
   )
   if (settings.every((s) => !(s.key in values) || s.value === values[s.key]))
     return
+  // Unmanic may reset any submitted supporter-only setting.
   await api('/plugins/settings/update', {
     plugin_id: pluginId,
-    settings: settings.map((s) =>
-      s.key in values ? { ...s, value: values[s.key] } : s,
-    ),
+    settings: settings
+      .filter((s) => s.key in values)
+      .map((s) => ({ ...s, value: values[s.key] })),
   })
 }
 

@@ -20,7 +20,7 @@ const connectAction = (id: IntegrationId) => {
         ),
         warning: connected
           ? i18n(
-              'Removes the ${plugin} plugin from Unmanic, along with its settings and its place in your library flows, and restarts Unmanic.',
+              'Removes the ${plugin} plugin from Unmanic and your library flows, and restarts Unmanic. Saved plugin settings are kept.',
               { plugin },
             )
           : i18n('Restarts Unmanic, stopping any file it is processing.'),

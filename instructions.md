@@ -40,7 +40,7 @@ The dashboard shows the pending list, active workers and completed tasks. Settin
 
 The **Integrations** status on the Dashboard tab shows which services are connected, or why a connection could not be set up. Plugins download from the Unmanic plugin repository, so Unmanic needs internet access to connect a service.
 
-Running the same action again disconnects that service. Unmanic then removes its notify plugin, together with its settings and its place in your library flows.
+Running the same action again disconnects that service. Unmanic removes its notify plugin and its place in your library flows, but keeps the saved global and per-library settings. Reconnecting reuses those settings; add the plugin to your library flows again.
 
 If you change a notify plugin's settings for one particular library, that library keeps your settings and does not receive updated connection details.
 

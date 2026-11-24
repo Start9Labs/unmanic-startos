@@ -151,32 +151,48 @@ export const main = sdk.setupMain(async ({ effects }) => {
       : null
   }
 
+  // Each integration reconciles independently of other services' availability.
   async function reconcile(): Promise<string | null> {
-    for (const id of removing) {
-      await removePlugin(integrations[id].pluginId)
-      if ((await storeJson.read((s) => s[id]).once()) === 'removing')
-        await storeJson.merge(effects, { [id]: 'off' })
-    }
-    for (const id of connected) {
+    const errors: string[] = []
+    for (const id of [...removing, ...connected]) {
       const { title: service, pluginId: plugin } = integrations[id]
-      const address = addresses[id]
-      const apiKey = apiKeys[id]
-      if (!address) return i18n('${service} is not installed', { service })
-      if (!apiKey)
-        return i18n('${service} has not shared its API key yet', { service })
       try {
+        if (removing.includes(id)) {
+          await removePlugin(plugin)
+          await storeJson.update(
+            effects,
+            (current) =>
+              current?.[id] === 'removing' ? { ...current, [id]: 'off' } : null,
+            { allowWriteAfterConst: true },
+          )
+          continue
+        }
+        const address = addresses[id]
+        const apiKey = apiKeys[id]
+        if (!address) {
+          errors.push(i18n('${service} is not installed', { service }))
+          continue
+        }
+        if (!apiKey) {
+          errors.push(
+            i18n('${service} has not shared its API key yet', { service }),
+          )
+          continue
+        }
         await connectPlugin(
           plugin,
           integrations[id].settings(`http://${address}`, apiKey),
         )
       } catch (e) {
-        return i18n('Could not set up the ${plugin} plugin: ${error}', {
-          plugin,
-          error: e instanceof Error ? e.message : String(e),
-        })
+        errors.push(
+          i18n('Could not update the ${plugin} plugin: ${error}', {
+            plugin,
+            error: e instanceof Error ? e.message : String(e),
+          }),
+        )
       }
     }
-    return null
+    return errors.length ? errors.join('\n') : null
   }
 
   let attempt: Promise<string | null> | null = null
@@ -227,9 +243,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
                     (failedAt && Date.now() - failedAt > retryAfterMs)
                   ) {
                     failedAt = 0
-                    attempt = reconcile().catch((e) =>
-                      e instanceof Error ? e.message : String(e),
-                    )
+                    attempt = reconcile()
                   }
                   const error = await attempt
                   if (error) {

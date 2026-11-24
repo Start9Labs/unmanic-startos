@@ -10,7 +10,7 @@ const dict = {
   'Connected to ${services}': 5,
   '${service} is not installed': 6,
   '${service} has not shared its API key yet': 7,
-  'Could not set up the ${plugin} plugin: ${error}': 8,
+  'Could not update the ${plugin} plugin: ${error}': 8,
 
   // interfaces.ts
   'Web UI': 9,
@@ -37,7 +37,7 @@ const dict = {
   'Connect ${service}': 24,
   'Disconnect ${service}': 25,
   'Install and configure the ${plugin} plugin, which asks ${service} on this server to rescan a file once Unmanic has processed it. Changing it restarts Unmanic.': 26,
-  'Removes the ${plugin} plugin from Unmanic, along with its settings and its place in your library flows, and restarts Unmanic.': 27,
+  'Removes the ${plugin} plugin from Unmanic and your library flows, and restarts Unmanic. Saved plugin settings are kept.': 27,
   'Restarts Unmanic, stopping any file it is processing.': 30,
 
   // init/tasks.ts

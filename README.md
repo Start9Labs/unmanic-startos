@@ -150,7 +150,7 @@ Five user-facing actions. None is hidden.
 ### Connect / Disconnect Sonarr, Radarr, Jellyfin
 
 - **When:** to have that service rescan after Unmanic replaces a file, or to stop.
-- **Changes:** the service's state in `store.json`; on connect, the notify plugin and its URL and key; on disconnect, removes the plugin, which takes its settings and its library-flow entries with it.
+- **Changes:** the service's state in `store.json`; on connect, the notify plugin and its URL and key; on disconnect, removes the plugin and its library-flow entries. Saved global and per-library settings survive and are reused on reconnect.
 - **Cost:** a restart, then a plugin download from the Unmanic repository on connect.
 - **Repeat safety:** each run toggles.
 - **Next:** after connecting, add the plugin to each library's flow. The **Integrations** health check reports the result.
@@ -168,7 +168,7 @@ Neither returns once cleared, since neither action can unset its value.
 
 ## Health Checks
 
-The web check is always present; the integrations check exists only while a service is connected or being disconnected.
+The web check is always present; the integrations check exists only while a service is connected or being disconnected. An unavailable service or failed plugin operation does not prevent the other integrations from being reconciled; failures are reported together.
 
 | Check                         | Probes                                                               | Grace period |
 | ----------------------------- | -------------------------------------------------------------------- | ------------ |
@@ -180,7 +180,7 @@ The web check is always present; the integrations check exists only while a serv
 - **Connected to …** — every connected plugin is installed with current settings.
 - **… is not installed** — a connected service was uninstalled. Reinstall it, or run its connect action to disconnect.
 - **… has not shared its API key yet** — the service has not written `api-key` to its `public` volume. Start it once; for Jellyfin, update it to a release that publishes one.
-- **Could not set up the … plugin: …** — Unmanic's API refused or the plugin download failed, most often with no internet access. The check retries a minute after a failure.
+- **Could not update the … plugin: …** — Unmanic's API refused a plugin operation or the plugin download failed, most often with no internet access. The check retries a minute after a failure.
 
 ## Backups and Restore
 
